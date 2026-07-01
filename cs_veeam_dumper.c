@@ -561,7 +561,7 @@ char* getExeFromPath(char * db_type){
                 "C:\\Program Files\\PostgreSQL\\16\\bin\\psql.exe",
                 "C:\\Program Files\\PostgreSQL\\15\\bin\\psql.exe",
                 "C:\\Program Files\\PostgreSQL\\14\\bin\\psql.exe",
-                "C:\\Program Files\\PostgreSQL\\13\\bin\\psql.exe"
+                "C:\\Program Files\\PostgreSQL\\13\\bin\\psql.exe",
                 "C:\\Program Files (x86)\\PostgreSQL\\13\\bin\\psql.exe",
                 "C:\\PostgreSQL\\bin\\psql.exe"
             };
@@ -850,10 +850,9 @@ char* runCommand(char * cmdLine, int *out_len){
         return NULL;
     // BeaconPrintf(CALLBACK_OUTPUT, "Built buffer %s", final_output);
     char *final_output_local = (char *)malloc(total_len+1);
-
-    // strcpy(final_output_local, final_output);
     memcpy(final_output_local, final_output, total_len);
-    final_output_local[total_len] = '\0'; 
+    final_output_local[total_len] = '\0';
+    free(final_output);          // free the accumulation buffer
     return final_output_local;
 }
 
@@ -863,7 +862,10 @@ void DecryptLine(char* line,int len){
     // return;
     // Ignore if password field is empty
     char *first_colon = strchr(line, ':');
+    if (!first_colon) return;
     char *second_colon = strchr(first_colon + 1, ':');
+    if (!second_colon) return;
+    
     if (second_colon == first_colon + 1) {
         if (debug)
             BeaconFormatPrintf(&buffer, "[DEBUG] Ignoring no password: %s\n", line);
@@ -877,12 +879,12 @@ void DecryptLine(char* line,int len){
         char *EncPassword = NULL;
         char *Desc = NULL;
 
-        if (!first_colon) return;
+      
         *first_colon = '\0';      
 
         EncPassword = first_colon + 1;
 
-        if (!second_colon) return; 
+         
         *second_colon = '\0';      
 
         Desc = second_colon + 1;
@@ -1124,16 +1126,15 @@ char* DecryptA(char* encPass){
                 BeaconFormatPrintf(&buffer, "[DEBUG] Converting likely wide string\n");
             plaintext = WideToNarrow(out_blob.pbData,out_blob.cbData);
         }else{
-
             plaintext = (char *)malloc(out_blob.cbData + 1);
             if (!plaintext) {
-                // LocalFree(out_blob.pbData);
                 free(data);
                 return NULL;
             }
+            memcpy(plaintext, out_blob.pbData, out_blob.cbData);
+            plaintext[out_blob.cbData] = '\0';
         }
-
-        return plaintext; 
+        return plaintext;
         
     }
     return NULL;
