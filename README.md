@@ -56,6 +56,6 @@ x86_64-w64-mingw32-gcc -c cs_veeam_dumper.c -o cs_veeam_dumper.x64.o
 
  ### Resources
 
-<!--[MWR Blog - link](https://mwrcybersec.com)  -->
+[Blog Post](https://mwrcybersec.com/gimme-gimme-gimme-your-creds-after-midnight) 
 
 [Veeam Dumper .NET Implementation](https://github.com/MWR-CyberSec/VeeamDumper)
